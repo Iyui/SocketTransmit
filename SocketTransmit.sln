@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketTransmit", "SocketTransmit\SocketTransmit.csproj", "{4E185FE0-BA0F-48D1-B59B-0A7DE083AAC2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmit.Server", "Transmit.Server\Transmit.Server.csproj", "{79410407-84D3-46CA-A71B-0BD7B6AF0F67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transmit.Client", "Transmit.Client\Transmit.Client.csproj", "{67F32E91-8AC5-4A38-81F7-01B074695185}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{4E185FE0-BA0F-48D1-B59B-0A7DE083AAC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E185FE0-BA0F-48D1-B59B-0A7DE083AAC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E185FE0-BA0F-48D1-B59B-0A7DE083AAC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79410407-84D3-46CA-A71B-0BD7B6AF0F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79410407-84D3-46CA-A71B-0BD7B6AF0F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79410407-84D3-46CA-A71B-0BD7B6AF0F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79410407-84D3-46CA-A71B-0BD7B6AF0F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67F32E91-8AC5-4A38-81F7-01B074695185}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67F32E91-8AC5-4A38-81F7-01B074695185}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67F32E91-8AC5-4A38-81F7-01B074695185}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67F32E91-8AC5-4A38-81F7-01B074695185}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
