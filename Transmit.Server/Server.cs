@@ -33,6 +33,37 @@ namespace Transmit.Server
         }
 
         #region 变量
+        //定义回调:解决跨线程访问问题
+        private delegate void SetTextValueCallBack(string strValue);
+        //定义接收客户端发送消息的回调
+        private delegate void ReceiveMsgCallBack(string strReceive);
+
+        private delegate void IPCallBack(string strReceive);
+
+        //声明回调
+        private SetTextValueCallBack setCallBack;
+        //声明
+        private ReceiveMsgCallBack receiveCallBack;
+
+        private ReceiveMsgCallBack receiveIPCallBack;
+
+        private IPCallBack ipCallBack;
+        //定义回调：给ComboBox控件添加元素
+        private delegate void SetCmbCallBack(string strItem);
+        //声明
+        private SetCmbCallBack setCmbCallBack;
+        //定义发送文件的回调
+        private delegate void SendFileCallBack(byte[] bf);
+        //定义发送文件的回调
+        private delegate void SendMessageCallBack();
+
+        //声明
+        private SendFileCallBack sendCallBack;
+
+        //声明
+        private SendMessageCallBack sendMessageCallBack;
+
+
         //用于通信的Socket
         Socket socketSend;
         //用于监听的SOCKET
@@ -53,15 +84,19 @@ namespace Transmit.Server
         #endregion
         public void Listern()
         {
-            IPEndPoint ipe = new IPEndPoint(IPAddress.Any, port);//new IPEndPoint(IPAddress.Any, port);//IPAddress.Parse("180.175.63.122")
+            IPAddress ip = IPAddress.Parse("192.168.1.128");
+            IPEndPoint ipe = new IPEndPoint(/*IPAddress.Any*/ip, 10001);//new IPEndPoint(IPAddress.Any, port);//IPAddress.Parse("180.175.63.122")
             socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socketWatch.Bind(ipe);
             socketWatch.Listen(backlog);
+            MessageBox.Show("监听成功");
             //this.txt_Log.AppendText("监听成功" + " \r \n");
             //btn_Start.Enabled = false;
             ////实例化回调
             //setCallBack = new SetTextValueCallBack(SetTextValue);
-            //receiveCallBack = new ReceiveMsgCallBack(ReceiveMsg);
+            receiveCallBack = new ReceiveMsgCallBack(ReceiveMsg);
+            receiveIPCallBack = new ReceiveMsgCallBack(ReceiveMsgIP);
+
             //ipCallBack = new IPCallBack(IpChangeValue);
             //setCmbCallBack = new SetCmbCallBack(AddCmbItem);
             //sendCallBack = new SendFileCallBack(SendFile);
@@ -90,6 +125,7 @@ namespace Transmit.Server
                 hsSocket.Add(socketSend);
 
                 string strIp = socketSend.RemoteEndPoint.ToString();
+                listBox2.Invoke(receiveIPCallBack, strIp);
                 string strMsg = "远程主机：" + socketSend.RemoteEndPoint + "连接成功";
                 //使用回调
                 //定义接收客户端消息的线程
@@ -98,6 +134,11 @@ namespace Transmit.Server
                 threadReceive.Start(socketSend);
                 Thread.Sleep(1);
             }
+        }
+        
+        private void ClearSocketUnconnected()
+        {
+
         }
 
         /// <summary>
@@ -114,7 +155,11 @@ namespace Transmit.Server
                     //客户端连接成功后，服务器接收客户端发送的消息
                     byte[] buffer = new byte[socketSend.ReceiveBufferSize];
                     //实际接收到的有效字节数
-                    int count = socketSend.Receive(buffer);
+
+                    int count = socketSend.Receive(buffer, buffer.Length,0);
+                    List<byte> bufferlist = new List<byte>();
+                    for (int i = 0; i < count; i++)
+                        bufferlist.Add(buffer[i]);
                     string strIp = socketSend.RemoteEndPoint.ToString();
                     if (count == 0)//count 表示客户端关闭，要退出循环
                     {
@@ -123,6 +168,7 @@ namespace Transmit.Server
                     else
                     {
                         DisposeSignal(buffer, socketSend);
+                        Send(bufferlist.ToArray(), socketSend);
                     }
                 }
                 catch
@@ -133,7 +179,7 @@ namespace Transmit.Server
             }
         }
 
-        private void Send(Socket socketSend,byte[] bytes)
+        private void Send(byte[] bytes, Socket socketSend)
         {
             ((Socket)htMoudlePC[socketSend]).Send(bytes);
         }
@@ -149,11 +195,16 @@ namespace Transmit.Server
             var s = "";
             foreach (var c in buffer)
                 s += c.ToString("X2");
-            var message = s.Split(':');
+            listBox3.Invoke(receiveCallBack,socketSend.RemoteEndPoint +":"+s);
+            string str = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
+            listBox3.Invoke(receiveCallBack, str);
+            var message = str.Split(':');
             if (message[0] == "shgarden")
             {
+     
                 hsPCSocket.Add(socketSend);
-                htPCSocket.Add(message[1], socketSend);
+                if (!htPCSocket.ContainsKey(message[1]))
+                    htPCSocket.Add(message[1], socketSend);
                 if (htPCSocket[message[1]] != socketSend)
                 {
                     htPCSocket.Remove(message[1]);
@@ -166,12 +217,12 @@ namespace Transmit.Server
                     htMoudlePC.Add(htModuleSocket[message[1]], socketSend);
                     htMoudlePC.Add(socketSend,htModuleSocket[message[1]]);
                 }
-
             }
             else if (message[0] == "nedraghs")
             {
                 hsModuleSocket.Add(socketSend);
-                htModuleSocket.Add(message[1], socketSend);
+                if(!htModuleSocket.ContainsKey(message[1]))
+                    htModuleSocket.Add(message[1], socketSend);
                 if(htModuleSocket[message[1]] != socketSend)
                 {
                     htModuleSocket.Remove(message[1]);
@@ -187,5 +238,42 @@ namespace Transmit.Server
             }
         }
 
+        private void Server_Load(object sender, EventArgs e)
+        {
+            Listern();
+        }
+
+        private void btRefresh_Click(object sender, EventArgs e)
+        {
+            lbMoudleCode.Items.Clear();
+            foreach (string code in htPCSocket.Keys)
+            {
+                lbMoudleCode.Items.Add(code);
+            }
+        }
+        private void ReceiveMsgIP(string strMsg)
+        {
+            this.listBox2.Items.Add(strMsg);
+        }
+
+        private void ReceiveMsg(string strMsg)
+        {
+            this.listBox3.Items.Add(strMsg);
+        }
+
+        private void lbMoudleCode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            try
+            {
+                listBox1.Items.Add(((Socket)htModuleSocket[lbMoudleCode.SelectedItem]).RemoteEndPoint);
+            }
+            catch { };
+            try
+            {
+                listBox1.Items.Add(((Socket)htPCSocket[lbMoudleCode.SelectedItem]).RemoteEndPoint);
+            }
+            catch { };
+        }
     }
 }

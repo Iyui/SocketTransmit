@@ -15,7 +15,7 @@ namespace Transmit.Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Client());
+            Application.Run(new Client_Login());
         }
     }
 }
