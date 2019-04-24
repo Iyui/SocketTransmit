@@ -124,7 +124,7 @@ namespace Transmit.Client
                         foreach (var c in buffer)
                             s += c.ToString("X2");
                         string str = Encoding.ASCII.GetString(buffer, 0, count);
-                        string strReceiveMsg = $"接收：{s}发送的消息：{ str}";
+                        string strReceiveMsg = $"接收{socketSend.RemoteEndPoint}：{s}";
                         txt_Log.Invoke(receiveCallBack, strReceiveMsg);
                     }
                 }
@@ -173,8 +173,7 @@ namespace Transmit.Client
             {
                 temp += data[i].ToString("X2") + " ";
             }
-            txt_Log.Invoke(receiveCallBack, $"接收数据{temp}\n");
-            
+            txt_Log.Invoke(receiveCallBack, $"{sp.PortName}接收数据{temp}\n");           
         }
 
         private void SendFromSerialportToSocket(byte[] data)
@@ -202,5 +201,18 @@ namespace Transmit.Client
             OpenSeraialport();
         }
 
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            socketWatch.Disconnect(false);
+            socketSend.Disconnect(false);
+            Environment.Exit(0);
+        }
+
+        private void Client_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            socketWatch.Disconnect(false);
+            socketSend.Disconnect(false);
+            Environment.Exit(0);
+        }
     }
 }

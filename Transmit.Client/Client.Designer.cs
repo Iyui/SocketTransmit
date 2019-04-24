@@ -33,6 +33,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.cbSerialPort = new System.Windows.Forms.ComboBox();
             this.txt_Log = new System.Windows.Forms.TextBox();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -47,6 +48,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.btnDisconnect);
             this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.button3);
             this.splitContainer1.Panel1.Controls.Add(this.cbSerialPort);
@@ -97,6 +99,16 @@
             this.txt_Log.Size = new System.Drawing.Size(530, 450);
             this.txt_Log.TabIndex = 6;
             // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(96, 292);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(98, 23);
+            this.btnDisconnect.TabIndex = 19;
+            this.btnDisconnect.Text = "断开连接";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
             // Client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -105,6 +117,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "Client";
             this.Text = "Client";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Client_FormClosed);
             this.Load += new System.EventHandler(this.Client_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -123,6 +136,7 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ComboBox cbSerialPort;
         private System.Windows.Forms.TextBox txt_Log;
+        private System.Windows.Forms.Button btnDisconnect;
     }
 }
 

@@ -30,12 +30,13 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.btRefresh = new System.Windows.Forms.Button();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.lbMoudleCode = new System.Windows.Forms.ListBox();
+            this.btRefresh = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.listBox3 = new System.Windows.Forms.ListBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -79,31 +80,12 @@
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.button1);
             this.splitContainer2.Panel2.Controls.Add(this.listBox2);
             this.splitContainer2.Panel2.Controls.Add(this.listBox1);
             this.splitContainer2.Size = new System.Drawing.Size(396, 449);
             this.splitContainer2.SplitterDistance = 192;
             this.splitContainer2.TabIndex = 0;
-            // 
-            // listBox1
-            // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 12;
-            this.listBox1.Location = new System.Drawing.Point(2, 3);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(195, 88);
-            this.listBox1.TabIndex = 1;
-            // 
-            // btRefresh
-            // 
-            this.btRefresh.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btRefresh.Location = new System.Drawing.Point(0, 0);
-            this.btRefresh.Name = "btRefresh";
-            this.btRefresh.Size = new System.Drawing.Size(192, 47);
-            this.btRefresh.TabIndex = 2;
-            this.btRefresh.Text = "刷新模块号列表";
-            this.btRefresh.UseVisualStyleBackColor = true;
-            this.btRefresh.Click += new System.EventHandler(this.btRefresh_Click);
             // 
             // splitContainer3
             // 
@@ -134,23 +116,54 @@
             this.lbMoudleCode.TabIndex = 4;
             this.lbMoudleCode.SelectedIndexChanged += new System.EventHandler(this.lbMoudleCode_SelectedIndexChanged);
             // 
+            // btRefresh
+            // 
+            this.btRefresh.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btRefresh.Location = new System.Drawing.Point(0, 0);
+            this.btRefresh.Name = "btRefresh";
+            this.btRefresh.Size = new System.Drawing.Size(192, 47);
+            this.btRefresh.TabIndex = 2;
+            this.btRefresh.Text = "刷新模块号列表";
+            this.btRefresh.UseVisualStyleBackColor = true;
+            this.btRefresh.Click += new System.EventHandler(this.btRefresh_Click);
+            // 
             // listBox2
             // 
             this.listBox2.FormattingEnabled = true;
             this.listBox2.ItemHeight = 12;
             this.listBox2.Location = new System.Drawing.Point(2, 97);
             this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(195, 352);
+            this.listBox2.Size = new System.Drawing.Size(195, 304);
             this.listBox2.TabIndex = 2;
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 12;
+            this.listBox1.Location = new System.Drawing.Point(2, 3);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(195, 88);
+            this.listBox1.TabIndex = 1;
             // 
             // listBox3
             // 
+            this.listBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listBox3.FormattingEnabled = true;
             this.listBox3.ItemHeight = 12;
-            this.listBox3.Location = new System.Drawing.Point(3, 3);
+            this.listBox3.Location = new System.Drawing.Point(0, 0);
             this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(397, 448);
+            this.listBox3.Size = new System.Drawing.Size(400, 449);
             this.listBox3.TabIndex = 3;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(2, 402);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(195, 44);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "清空";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Server
             // 
@@ -187,6 +200,7 @@
         private System.Windows.Forms.Button btRefresh;
         private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.ListBox listBox3;
+        private System.Windows.Forms.Button button1;
     }
 }
 

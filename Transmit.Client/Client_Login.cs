@@ -28,8 +28,10 @@ namespace Transmit.Client
         {
             try
             {
-                string host = "192.168.1.128";//服务端IP地址//118.31.47.54 
-                int port = 10001;
+                string host = "192.168.1.128";
+               // string host = "118.31.47.54 ";//服务端IP地址
+
+                int port = 10000;
                 socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //设置端口可复用
                 socketWatch.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
@@ -37,6 +39,8 @@ namespace Transmit.Client
                 socketWatch.Connect(host, port);
                 Client client = new Client(socketWatch, textBox1.Text);
                 client.Show();
+                this.Hide();
+                
             }
             catch (Exception ex)
             {
