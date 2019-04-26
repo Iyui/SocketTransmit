@@ -88,10 +88,10 @@ namespace Transmit.Server
         {
             try
             {
-                IPAddress ip = IPAddress.Parse("192.168.1.128");
+               // IPAddress ip = IPAddress.Parse("192.168.1.128");
+                //IPEndPoint ipe = new IPEndPoint(ip, 10000);
+                IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 10000);
 
-                //IPEndPoint ipe = new IPEndPoint(IPAddress.Any/*ip*/, 10000);
-                IPEndPoint ipe = new IPEndPoint(ip, 10000);
 
                 socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socketWatch.Bind(ipe);
@@ -163,6 +163,8 @@ namespace Transmit.Server
             }
         }
         
+        
+
         private void ClearSocketUnconnected()
         {
 
@@ -192,7 +194,10 @@ namespace Transmit.Server
                     string strIp = socketSend.RemoteEndPoint.ToString();
                     if (count == 0)//count 表示客户端关闭，要退出循环
                     {
-                        listBox2.Invoke(removeCallBack, socketSend.RemoteEndPoint.ToString());
+                        var strSocket = socketSend.RemoteEndPoint.ToString();
+                        listBox2.Invoke(removeCallBack, strSocket);
+                        var keys = (string)(htModuleSocket.OfType<DictionaryEntry>().FirstOrDefault(q => q.Value == socketSend).Key);
+                        ClearhtSocket(keys, socketSend);
                         break;
                     }
                     else
@@ -209,12 +214,33 @@ namespace Transmit.Server
             }
         }
 
+        private void ClearhtSocket(string keys,Socket sk)
+        {
+            //if (htPCSocket.ContainsKey(keys))
+            //    htPCSocket.Remove(keys);
+            if (htModuleSocket.ContainsKey(keys))
+                htModuleSocket.Remove(keys);
+            if (htMoudlePC.ContainsKey(sk))
+                htMoudlePC.Remove(sk);
+        }
         private void Send(byte[] bytes, Socket socketSend)
         {
-            ((Socket)htMoudlePC[socketSend]).Send(bytes);
+            if(htMoudlePC.ContainsKey(socketSend))
+                ((Socket)htMoudlePC[socketSend]).Send(bytes);
+            else
+            {
+                var signal = Encoding.Default.GetBytes("unconnunconnunconnunconnunconn");
+                socketSend.Send(signal);
+            }
         }
 
         static Hashtable htMoudlePC = new Hashtable();
+
+        //private bool isJudgeMoudleConnected()
+        //{
+        //    if (htMoudlePC)
+        //}
+
         /// <summary>
         /// 连接时判断是模块还是PC,并进行配对
         /// </summary>
@@ -247,16 +273,27 @@ namespace Transmit.Server
                 }
                 if(htModuleSocket.ContainsKey(message[1]))
                 {
+                    if (htMoudlePC.ContainsKey(htModuleSocket[message[1]]))
+                        htMoudlePC.Remove(htPCSocket[message[1]]);
+                    if (htMoudlePC.ContainsKey(socketSend))
+                        htMoudlePC.Remove(socketSend);
                     htMoudlePC.Add(htModuleSocket[message[1]], socketSend);
                     htMoudlePC.Add(socketSend,htModuleSocket[message[1]]);
+                }
+                if (!htMoudlePC.ContainsKey(socketSend))
+                {
+                    var signal = Encoding.Default.GetBytes("unconnunconnunconnunconnunconn");
+                    socketSend.Send(signal);
                 }
                 return true;
             }
             else if (message[0] == "shgarden")
             {
                 hsModuleSocket.Add(socketSend);
-                if(!htModuleSocket.ContainsKey(message[1]))
+                if (!htModuleSocket.ContainsKey(message[1]))
+                {
                     htModuleSocket.Add(message[1], socketSend);
+                }
                 if(htModuleSocket[message[1]] != socketSend)
                 {
                     try { listBox2.Invoke(removeCallBack, ((Socket)htModuleSocket[message[1]]).RemoteEndPoint.ToString()); }
@@ -266,16 +303,26 @@ namespace Transmit.Server
                     }
                     htModuleSocket.Remove(message[1]);
                     htModuleSocket.Add(message[1], socketSend);
-                   
+
                     htMoudlePC.Remove(socketSend);
                 }
                 if (htPCSocket.ContainsKey(message[1]))
                 {
+                    if(htMoudlePC.ContainsKey(htPCSocket[message[1]]))
+                        htMoudlePC.Remove(htPCSocket[message[1]]);
+                    if(htMoudlePC.ContainsKey(socketSend))
+                        htMoudlePC.Remove(socketSend);
+
                     htMoudlePC.Add(htPCSocket[message[1]], socketSend);
                     htMoudlePC.Add(socketSend, htPCSocket[message[1]]);
                 }
                 return true;
 
+            }
+            if (!htMoudlePC.ContainsKey(socketSend))
+            {
+                var signal = Encoding.Default.GetBytes("unconnunconnunconnunconnunconn");
+                socketSend.Send(signal);
             }
             return false;
         }
@@ -284,7 +331,7 @@ namespace Transmit.Server
             var s = "";
             foreach (var c in buffer)
                 s += c.ToString("X2");
-            listBox3.Invoke(receiveCallBack, socketSend.RemoteEndPoint + ":" + s);
+            listBox3.Invoke(receiveCallBack,socketSend.RemoteEndPoint + ":" + s);
             string str = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
             //listBox3.Invoke(receiveCallBack, s);
             var message = str.Split(':');
@@ -314,12 +361,18 @@ namespace Transmit.Server
 
         private void ReceiveMsg(string strMsg)
         {
-            this.listBox3.Items.Add(strMsg);
+            this.listBox3.Items.Add(DateTime.Now.ToString() + ":" + strMsg);
+      
         }
 
         private void RemoveMsg(string strMsg)
         {
             this.listBox2.Items.Remove(strMsg);
+        }
+
+        private void RemoveMoudleCode(string strMsg)
+        {
+            //htModuleSocket.re
         }
 
         private void lbMoudleCode_SelectedIndexChanged(object sender, EventArgs e)
@@ -341,5 +394,32 @@ namespace Transmit.Server
         {
             listBox3.Items.Clear();
         }
+
+        private void SaveInfo()
+        {
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Filter = "(文本)*.txt|*.txt"
+            };
+            sfd.FileName = DateTime.Now.ToString();
+            try
+            {
+                string str = "";
+                for (int i = 0; i < listBox3.Items.Count; i++)
+                {
+                    str += listBox3.Items[i].ToString() + "\r\n";
+                }
+                StreamWriter sw = new StreamWriter(sfd.FileName, true);
+                sw.WriteLine(str);
+                sw.Close();
+                listBox3.Items.Clear();
+            }
+            catch
+            {
+                //MessageBox.Show($"保存日志文件[{sfd.FileName}]失败,异常信息:[{ex.Message}]");
+            }
+
+        }
+
     }
 }

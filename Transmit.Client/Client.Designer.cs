@@ -34,6 +34,8 @@
             this.cbSerialPort = new System.Windows.Forms.ComboBox();
             this.txt_Log = new System.Windows.Forms.TextBox();
             this.btnDisconnect = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -48,6 +50,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.textBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.label1);
             this.splitContainer1.Panel1.Controls.Add(this.btnDisconnect);
             this.splitContainer1.Panel1.Controls.Add(this.label3);
             this.splitContainer1.Panel1.Controls.Add(this.button3);
@@ -63,7 +67,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(23, 49);
+            this.label3.Location = new System.Drawing.Point(23, 165);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 12);
             this.label3.TabIndex = 18;
@@ -71,7 +75,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(96, 102);
+            this.button3.Location = new System.Drawing.Point(96, 229);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(98, 23);
             this.button3.TabIndex = 17;
@@ -82,7 +86,7 @@
             // cbSerialPort
             // 
             this.cbSerialPort.FormattingEnabled = true;
-            this.cbSerialPort.Location = new System.Drawing.Point(96, 46);
+            this.cbSerialPort.Location = new System.Drawing.Point(96, 162);
             this.cbSerialPort.Name = "cbSerialPort";
             this.cbSerialPort.Size = new System.Drawing.Size(150, 20);
             this.cbSerialPort.TabIndex = 16;
@@ -108,6 +112,23 @@
             this.btnDisconnect.Text = "断开连接";
             this.btnDisconnect.UseVisualStyleBackColor = true;
             this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(23, 110);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(41, 12);
+            this.label1.TabIndex = 20;
+            this.label1.Text = "模块号";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(96, 107);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.Size = new System.Drawing.Size(150, 21);
+            this.textBox1.TabIndex = 21;
             // 
             // Client
             // 
@@ -137,6 +158,8 @@
         private System.Windows.Forms.ComboBox cbSerialPort;
         private System.Windows.Forms.TextBox txt_Log;
         private System.Windows.Forms.Button btnDisconnect;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label1;
     }
 }
 

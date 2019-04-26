@@ -18,18 +18,19 @@ namespace Transmit.Client
 {
     public partial class Client : Form
     {
-        public Client(Socket socketWatch,string MoudleCode)
+        public Client(Socket socketWatch,string MoudleCode,string host,int port)
         {
             InitializeComponent();
             this.socketWatch = socketWatch;
             this.MoudleCode = MoudleCode;
             sp.DataReceived += Sp_DataReceived;
-
+            this.host = host;
+            this.port = port;
 
         }
         //用于通信的Socket
         Socket socketSend;
-
+        static bool isConnect = false;
 
         //定义回调:解决跨线程访问问题
         private delegate void SetTextValueCallBack(string strValue);
@@ -38,7 +39,7 @@ namespace Transmit.Client
 
         private delegate void IPCallBack(string strReceive);
 
-        private delegate void SendFromSerialportCallBack(byte[] bytes);
+        private delegate bool SendFromSerialportCallBack(byte[] bytes);
 
         private SendFromSerialportCallBack SendByteCallBack;
 
@@ -70,12 +71,23 @@ namespace Transmit.Client
             get;set;
         }
 
+        public string host
+        {
+            get; set;
+        }
+
+        public int port
+        {
+            get; set;
+        }
+
         public string MoudleCode
         {
             get; set;
         }
         private void Client_Load(object sender, EventArgs e)
         {
+            textBox1.Text = MoudleCode;
             Connect();
         }
 
@@ -83,6 +95,7 @@ namespace Transmit.Client
         {
             var signal = Encoding.Default.GetBytes($"nedraghs:{MoudleCode}:");
             socketWatch.Send(signal);
+            
             //实例化回调
             setCallBack = new SetTextValueCallBack(SetTextValue);
             receiveCallBack = new ReceiveMsgCallBack(ReceiveMsg);
@@ -95,6 +108,8 @@ namespace Transmit.Client
             threadReceive = new Thread(new ParameterizedThreadStart(Receive));
             threadReceive.IsBackground = true;
             threadReceive.Start(socketWatch);
+            isConnect = true;
+            txt_Log.Invoke(receiveCallBack, "成功连接至服务器");
         }
 
         /// <summary>
@@ -104,6 +119,7 @@ namespace Transmit.Client
         private void Receive(object obj)
         {
             socketSend = obj as Socket;
+            int ReconnectCount = 1;
             while (true)
             {
                 try
@@ -124,12 +140,40 @@ namespace Transmit.Client
                         foreach (var c in buffer)
                             s += c.ToString("X2");
                         string str = Encoding.ASCII.GetString(buffer, 0, count);
+                        if(str.IndexOf("unconn")>=0)
+                        {
+                            MessageBox.Show("对应模块未连接");
+                        }
                         string strReceiveMsg = $"接收{socketSend.RemoteEndPoint}：{s}";
                         txt_Log.Invoke(receiveCallBack, strReceiveMsg);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
+                    isConnect = false;
+                    MessageBox.Show($"与服务器连接断开,第{ReconnectCount}次尝试重连...");
+                    socketWatch.Close();
+                    socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    //设置端口可复用
+                    socketWatch.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                    //连接服务端
+                    try
+                    {
+                        socketWatch.Connect(host, port);
+                        socketSend = socketWatch;
+                        Connect();
+                    }
+                    catch
+                    {
+                        if (ReconnectCount < 5)
+                            MessageBox.Show($"第{ReconnectCount}次尝试重连到服务器失败");
+                        else
+                        {
+                            MessageBox.Show("无法重连到服务器");
+                            Disconnect(false);                       
+                        }
+                        ReconnectCount++;
+                    }
 
                 }
             }
@@ -166,7 +210,10 @@ namespace Transmit.Client
             int len = sp.BytesToRead;
             byte[] data = new byte[len];
             sp.Read(data, 0, data.Length);
-            SendFromSerialportToSocket(data);
+            if(!SendFromSerialportToSocket(data))
+            {
+                //Disconnect();
+            }
 
             string temp = "";
             for (int i = 0; i < data.Length; i++)
@@ -176,9 +223,16 @@ namespace Transmit.Client
             txt_Log.Invoke(receiveCallBack, $"{sp.PortName}接收数据{temp}\n");           
         }
 
-        private void SendFromSerialportToSocket(byte[] data)
+        private bool SendFromSerialportToSocket(byte[] data)
         {
-            socketSend.Send(data);
+            if (isConnect == true)
+            {
+                socketSend.Send(data);
+                return true;
+            }
+            else
+                MessageBox.Show("与服务器连接断开");
+            return false;
         }
 
         /// <summary>
@@ -203,15 +257,21 @@ namespace Transmit.Client
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            socketWatch.Disconnect(false);
-            socketSend.Disconnect(false);
-            Environment.Exit(0);
+            Disconnect();
         }
 
         private void Client_FormClosed(object sender, FormClosedEventArgs e)
         {
-            socketWatch.Disconnect(false);
-            socketSend.Disconnect(false);
+            Disconnect();
+        }
+
+        private void Disconnect(bool bDisCon = true)
+        {
+            if (bDisCon)
+            {
+                socketWatch.Disconnect(false);
+                socketSend.Disconnect(false);
+            }
             Environment.Exit(0);
         }
     }
