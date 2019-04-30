@@ -82,5 +82,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\INIConfig\INIConfig.csproj">
+      <Project>{a7867f50-a2d5-43dc-9c61-6262ec64c919}</Project>
+      <Name>INIConfig</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

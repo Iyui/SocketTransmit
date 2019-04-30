@@ -88,11 +88,9 @@ namespace Transmit.Server
         {
             try
             {
-               // IPAddress ip = IPAddress.Parse("192.168.1.128");
-                //IPEndPoint ipe = new IPEndPoint(ip, 10000);
-                IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 10000);
-
-
+                IPAddress ip = IPAddress.Parse("192.168.1.128");
+                IPEndPoint ipe = new IPEndPoint(ip, 10000);
+                //IPEndPoint ipe = new IPEndPoint(IPAddress.Any, 10000);
                 socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socketWatch.Bind(ipe);
                 socketWatch.Listen(backlog);
@@ -141,17 +139,24 @@ namespace Transmit.Server
                     byte[] buffer = new byte[socketSend.ReceiveBufferSize];
                     //实际接收到的有效字节数
                     int count = socketSend.Receive(buffer, buffer.Length, 0);
-                    if(DisposeSignal(buffer,socketSend))
+                    if(DisposeSignal(buffer,socketSend, out string MoudleCode))
                     {
                         hsSocket.Add(socketSend);
                         string strIp = socketSend.RemoteEndPoint.ToString();
                         listBox2.Invoke(receiveIPCallBack, strIp);
                         string strMsg = "远程主机：" + socketSend.RemoteEndPoint + "连接成功";
+                        var signal = Encoding.Default.GetBytes($"{MoudleCode}{MoudleCode}{MoudleCode}{MoudleCode}{MoudleCode}");
+                        socketSend.Send(signal);
                         //使用回调
                         //定义接收客户端消息的线程
                         threadReceive = new Thread(new ParameterizedThreadStart(Receive));
                         threadReceive.IsBackground = true;
                         threadReceive.Start(socketSend);
+                    }
+                    else
+                    {
+                        var signal = Encoding.Default.GetBytes("AT+Z");
+                        socketSend.Send(signal);
                     }
                     
                 }
@@ -202,7 +207,7 @@ namespace Transmit.Server
                     }
                     else
                     {
-                        DisposeSignal(buffer, socketSend);
+                        DisposeSignal(buffer, socketSend,out string moudlecode);
                         Send(bufferlist.ToArray(), socketSend);
                     }
                 }
@@ -216,8 +221,6 @@ namespace Transmit.Server
 
         private void ClearhtSocket(string keys,Socket sk)
         {
-            //if (htPCSocket.ContainsKey(keys))
-            //    htPCSocket.Remove(keys);
             if (htModuleSocket.ContainsKey(keys))
                 htModuleSocket.Remove(keys);
             if (htMoudlePC.ContainsKey(sk))
@@ -235,7 +238,7 @@ namespace Transmit.Server
         }
 
         static Hashtable htMoudlePC = new Hashtable();
-
+        static int timeInterval = Environment.TickCount;
         //private bool isJudgeMoudleConnected()
         //{
         //    if (htMoudlePC)
@@ -246,8 +249,9 @@ namespace Transmit.Server
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="socketSend"></param>
-        private bool DisposeSignal(byte[] buffer, Socket socketSend)
+        private bool DisposeSignal(byte[] buffer, Socket socketSend,out string MoudleCode)
         {
+            MoudleCode = "";
             var s = "";
             foreach (var c in buffer)
                 s += c.ToString("X2");
@@ -274,7 +278,7 @@ namespace Transmit.Server
                 if(htModuleSocket.ContainsKey(message[1]))
                 {
                     if (htMoudlePC.ContainsKey(htModuleSocket[message[1]]))
-                        htMoudlePC.Remove(htPCSocket[message[1]]);
+                        htMoudlePC.Remove(htModuleSocket[message[1]]);
                     if (htMoudlePC.ContainsKey(socketSend))
                         htMoudlePC.Remove(socketSend);
                     htMoudlePC.Add(htModuleSocket[message[1]], socketSend);
@@ -285,6 +289,7 @@ namespace Transmit.Server
                     var signal = Encoding.Default.GetBytes("unconnunconnunconnunconnunconn");
                     socketSend.Send(signal);
                 }
+                MoudleCode = message[1];
                 return true;
             }
             else if (message[0] == "shgarden")
@@ -316,6 +321,7 @@ namespace Transmit.Server
                     htMoudlePC.Add(htPCSocket[message[1]], socketSend);
                     htMoudlePC.Add(socketSend, htPCSocket[message[1]]);
                 }
+                MoudleCode = message[1];
                 return true;
 
             }
@@ -362,7 +368,6 @@ namespace Transmit.Server
         private void ReceiveMsg(string strMsg)
         {
             this.listBox3.Items.Add(DateTime.Now.ToString() + ":" + strMsg);
-      
         }
 
         private void RemoveMsg(string strMsg)
@@ -372,7 +377,7 @@ namespace Transmit.Server
 
         private void RemoveMoudleCode(string strMsg)
         {
-            //htModuleSocket.re
+      
         }
 
         private void lbMoudleCode_SelectedIndexChanged(object sender, EventArgs e)

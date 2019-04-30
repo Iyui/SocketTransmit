@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.IO.Ports;
-
+using SocketTransmit.Config;
 namespace Transmit.Client
 {
     public partial class Client_Login : Form
@@ -28,8 +28,8 @@ namespace Transmit.Client
         {
             try
             {
-                //string host = "192.168.1.128";
-                 string host = "118.31.47.54 ";//服务端IP地址
+                string host = "192.168.1.128";
+                 //string host = "118.31.47.54 ";//服务端IP地址
 
                 int port = 10000;
                 socketWatch = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -39,13 +39,29 @@ namespace Transmit.Client
                 socketWatch.Connect(host, port);
                 Client client = new Client(socketWatch, textBox1.Text, host,port);
                 client.Show();
+                SetConfigFile();
                 this.Hide();
-                
             }
             catch (Exception ex)
             {
                 MessageBox.Show("连接服务器失败:" + ex.ToString());
             }
+        }
+        INIFile config = new INIFile(Application.StartupPath+@"\Config.ini");
+        private void SetConfigFile()
+        {
+            config.IniWriteValue("远程通讯", "模块号", textBox1.Text);
+        }
+
+        private void GetConfigFile()
+        {
+            if(config.ExistINIFile())
+                textBox1.Text=config.IniReadValue("远程通讯", "模块号");
+        }
+
+        private void Client_Login_Load(object sender, EventArgs e)
+        {
+            GetConfigFile();
         }
     }
 }

@@ -109,7 +109,7 @@ namespace Transmit.Client
             threadReceive.IsBackground = true;
             threadReceive.Start(socketWatch);
             isConnect = true;
-            txt_Log.Invoke(receiveCallBack, "成功连接至服务器");
+            //txt_Log.Invoke(receiveCallBack, "成功连接至服务器");
         }
 
         /// <summary>
@@ -127,6 +127,7 @@ namespace Transmit.Client
                     //客户端连接成功后，服务器接收客户端发送的消息
                     byte[] buffer = new byte[36];
                     //实际接收到的有效字节数
+                    ReconnectCount = 1;
                     int count = socketSend.Receive(buffer);
                     if (count == 0)//count 表示客户端关闭，要退出循环
                     {
@@ -139,13 +140,22 @@ namespace Transmit.Client
                         var s = "";
                         foreach (var c in buffer)
                             s += c.ToString("X2");
-                        string str = Encoding.ASCII.GetString(buffer, 0, count);
-                        if(str.IndexOf("unconn")>=0)
+                        string str = Encoding.Default.GetString(buffer, 0, count);
+                        if (str.IndexOf(MoudleCode) >= 0)
+                        {
+                            txt_Log.Invoke(receiveCallBack, "服务器连接成功,模块号:"+MoudleCode);
+                        }
+                        if (str.IndexOf("unconn")>=0)
                         {
                             MessageBox.Show("对应模块未连接");
                         }
+                        if (str.IndexOf("AT+Z") >= 0)
+                        {
+                            MessageBox.Show("连接服务器失败");
+                            Disconnect(false);
+                        }
                         string strReceiveMsg = $"接收{socketSend.RemoteEndPoint}：{s}";
-                        txt_Log.Invoke(receiveCallBack, strReceiveMsg);
+                        txt_Log.Invoke(receiveCallBack, strReceiveMsg );
                     }
                 }
                 catch(Exception ex)
@@ -176,6 +186,7 @@ namespace Transmit.Client
                     }
 
                 }
+
             }
         }
         SerialPort sp = new SerialPort();

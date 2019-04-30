@@ -35,11 +35,13 @@
             // 
             // textBox1
             // 
+            this.textBox1.Font = new System.Drawing.Font("宋体", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textBox1.Location = new System.Drawing.Point(40, 106);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(294, 45);
             this.textBox1.TabIndex = 0;
+            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
@@ -71,6 +73,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "Client_Login";
             this.Text = "Client_Login";
+            this.Load += new System.EventHandler(this.Client_Login_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
