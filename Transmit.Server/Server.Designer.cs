@@ -33,10 +33,11 @@
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.lbMoudleCode = new System.Windows.Forms.ListBox();
             this.btRefresh = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.listBox3 = new System.Windows.Forms.ListBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -80,6 +81,7 @@
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.checkBox1);
             this.splitContainer2.Panel2.Controls.Add(this.button1);
             this.splitContainer2.Panel2.Controls.Add(this.listBox2);
             this.splitContainer2.Panel2.Controls.Add(this.listBox1);
@@ -127,6 +129,16 @@
             this.btRefresh.UseVisualStyleBackColor = true;
             this.btRefresh.Click += new System.EventHandler(this.btRefresh_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(2, 420);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(195, 26);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "清空";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // listBox2
             // 
             this.listBox2.FormattingEnabled = true;
@@ -155,15 +167,15 @@
             this.listBox3.Size = new System.Drawing.Size(400, 449);
             this.listBox3.TabIndex = 3;
             // 
-            // button1
+            // checkBox1
             // 
-            this.button1.Location = new System.Drawing.Point(2, 402);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(195, 44);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "清空";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(48, 402);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(96, 16);
+            this.checkBox1.TabIndex = 4;
+            this.checkBox1.Text = "显示收发数据";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Server
             // 
@@ -180,6 +192,7 @@
             this.splitContainer1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.splitContainer3.Panel1.ResumeLayout(false);
@@ -201,6 +214,7 @@
         private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.ListBox listBox3;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 

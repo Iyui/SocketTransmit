@@ -156,13 +156,25 @@ namespace Transmit.Server
                     else
                     {
                         var signal = Encoding.Default.GetBytes("AT+Z");
-                        socketSend.Send(signal);
+                        var bytes1 = new byte[3] { 0x2b, 0x2b, 0x2b };
+                        var bytes2 = new byte[1] { 0x61 };
+                        var bytes3 = new byte[11] {0x61,0x64,0x6D,0x69,0x6E,0x41,0x54,0x2b,0X5a,0x0d,0x0a };
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Thread.Sleep(2000);
+                            //socketSend.Send(bytes1);
+                            Thread.Sleep(2000);
+
+                            socketSend.Send(bytes2);
+                            Thread.Sleep(5000);
+
+                            socketSend.Send(bytes3);
+                        }
                     }
-                    
                 }
-                catch(Exception ex)
+                catch
                 {
-                    listBox3.Invoke(receiveCallBack,ex.ToString());
+                    listBox3.Invoke(receiveCallBack,"断开或无效的连接:" + socketSend.RemoteEndPoint);
                 }
                 Thread.Sleep(1);
             }
@@ -207,13 +219,13 @@ namespace Transmit.Server
                     }
                     else
                     {
-                        DisposeSignal(buffer, socketSend,out string moudlecode);
+                        DisposeSignal(buffer, socketSend, out string moudlecode);
                         Send(bufferlist.ToArray(), socketSend);
                     }
                 }
                 catch
                 {
-                   
+
                 }
                 Thread.Sleep(1);
             }
@@ -367,6 +379,7 @@ namespace Transmit.Server
 
         private void ReceiveMsg(string strMsg)
         {
+            if(checkBox1.Checked)
             this.listBox3.Items.Add(DateTime.Now.ToString() + ":" + strMsg);
         }
 
@@ -399,32 +412,5 @@ namespace Transmit.Server
         {
             listBox3.Items.Clear();
         }
-
-        private void SaveInfo()
-        {
-            SaveFileDialog sfd = new SaveFileDialog()
-            {
-                Filter = "(文本)*.txt|*.txt"
-            };
-            sfd.FileName = DateTime.Now.ToString();
-            try
-            {
-                string str = "";
-                for (int i = 0; i < listBox3.Items.Count; i++)
-                {
-                    str += listBox3.Items[i].ToString() + "\r\n";
-                }
-                StreamWriter sw = new StreamWriter(sfd.FileName, true);
-                sw.WriteLine(str);
-                sw.Close();
-                listBox3.Items.Clear();
-            }
-            catch
-            {
-                //MessageBox.Show($"保存日志文件[{sfd.FileName}]失败,异常信息:[{ex.Message}]");
-            }
-
-        }
-
     }
 }

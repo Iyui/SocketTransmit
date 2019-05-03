@@ -13,7 +13,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.IO.Ports;
-
+using System.Diagnostics;
+using SocketTransmit.Config;
 namespace Transmit.Client
 {
     public partial class Client : Form
@@ -26,12 +27,14 @@ namespace Transmit.Client
             sp.DataReceived += Sp_DataReceived;
             this.host = host;
             this.port = port;
-
+#if (!DEBUG)
+            button2.Visible = false;
+#endif  
         }
         //用于通信的Socket
         Socket socketSend;
         static bool isConnect = false;
-
+        INIFile config = new INIFile(Application.StartupPath + @"\Config.ini");
         //定义回调:解决跨线程访问问题
         private delegate void SetTextValueCallBack(string strValue);
         //定义接收客户端发送消息的回调
@@ -39,9 +42,13 @@ namespace Transmit.Client
 
         private delegate void IPCallBack(string strReceive);
 
+        private delegate void ReStartApp();
+
         private delegate bool SendFromSerialportCallBack(byte[] bytes);
 
         private SendFromSerialportCallBack SendByteCallBack;
+
+        private ReStartApp restartapp;
 
         //声明回调
         private SetTextValueCallBack setCallBack;
@@ -60,8 +67,6 @@ namespace Transmit.Client
 
         Thread sendThread = null;
 
-        //创建监听连接的线程
-        Thread AcceptSocketThread;
         //接收客户端发送消息的线程
         Thread threadReceive;
 
@@ -87,8 +92,23 @@ namespace Transmit.Client
         }
         private void Client_Load(object sender, EventArgs e)
         {
+
             textBox1.Text = MoudleCode;
             Connect();
+            var spName = config.IniReadValue("远程通讯", "串口号");
+            cbSerialPort_DropDown(sender, e);
+            for (int i = 0; i < cbSerialPort.Items.Count; i++)
+            {
+                if (cbSerialPort.Items[i].ToString() == spName)
+                {
+                    //上次用过的串口依然可用
+                    cbSerialPort.Text = spName;
+                }
+                if(cbSerialPort.SelectedIndex < 0 && cbSerialPort.Items.Count > 0)
+                {
+                    cbSerialPort.SelectedIndex = 0;
+                }
+            }
         }
 
         private void Connect()
@@ -100,6 +120,7 @@ namespace Transmit.Client
             setCallBack = new SetTextValueCallBack(SetTextValue);
             receiveCallBack = new ReceiveMsgCallBack(ReceiveMsg);
             SendByteCallBack = new SendFromSerialportCallBack(SendFromSerialportToSocket);
+            restartapp = new ReStartApp(ReStart);
             //ipCallBack = new IPCallBack(IpChangeValue);
             //setCmbCallBack = new SetCmbCallBack(AddCmbItem);
             //sendCallBack = new SendFileCallBack(SendFile);
@@ -151,8 +172,10 @@ namespace Transmit.Client
                         }
                         if (str.IndexOf("AT+Z") >= 0)
                         {
-                            MessageBox.Show("连接服务器失败");
-                            Disconnect(false);
+                            if (MessageBox.Show("服务器获取客户端信息失败,是否重新连接服务器", "提示", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                this.Invoke(restartapp);
+                            else
+                                Disconnect();
                         }
                         string strReceiveMsg = $"接收{socketSend.RemoteEndPoint}：{s}";
                         txt_Log.Invoke(receiveCallBack, strReceiveMsg );
@@ -273,7 +296,13 @@ namespace Transmit.Client
 
         private void Client_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Disconnect();
+            config.IniWriteValue("远程通讯", "串口号", cbSerialPort.Text);
+            if (!bRestart)
+            {
+                bRestart = false;
+                Disconnect();
+            }
+            
         }
 
         private void Disconnect(bool bDisCon = true)
@@ -284,6 +313,55 @@ namespace Transmit.Client
                 socketSend.Disconnect(false);
             }
             Environment.Exit(0);
+        }
+        static bool bRestart = false;
+        private void ReStart()
+        {
+            socketWatch.Disconnect(false);
+            socketSend.Disconnect(false);
+            bRestart = true;
+            Application.ExitThread();
+            Application.Exit();
+            Application.Restart();
+            Process.GetCurrentProcess().Kill();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ReStart();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Thread td = new Thread(sendtest);
+            td.Start();
+        }
+
+        private void sendtest()
+        {
+            var bytes = Encoding.Default.GetBytes("12 34 56 78 04 B0 00 FA 00 64 00 64 2B 03 F4 01 01 00 01 00 00 00 D1 00 00 00 00 00 00 00 64 00 00 00 00 00");
+            while (true)
+            {
+                socketSend.Send(bytes);
+                Thread.Sleep(1);
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (sp.IsOpen)
+            {
+                try
+                {
+                    //sp.PortName = cbSerialPort.Text;
+                    sp.Close();
+                    txt_Log.AppendText($"关闭串口{sp.PortName}成功");
+                }
+                catch(Exception ex)
+                {
+                    txt_Log.AppendText($"关闭串口{sp.PortName}失败");
+                }
+            }
         }
     }
 }
